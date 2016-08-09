@@ -16,11 +16,12 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import ru.yandex.yamblz.App;
 import ru.yandex.yamblz.R;
+import ru.yandex.yamblz.loaders.model.Skate;
 import ru.yandex.yamblz.ui.activities.ScreenSlideActivity;
 
 public class ScreenSlidePageFragment extends Fragment implements View.OnClickListener, View.OnTouchListener {
 
-    public static final String ARG_PAGE = "page";
+    public static final String SKATE = "page";
 
     @BindView(R.id.txtFullName)
     TextView fullName;
@@ -29,21 +30,21 @@ public class ScreenSlidePageFragment extends Fragment implements View.OnClickLis
     @BindView(R.id.txtFullInfo)
     TextView desc;
     @BindView(R.id.imgSkate)
-    ImageView skate;
+    ImageView imgSkate;
     @BindView(R.id.imgComp)
-    ImageView comp;
+    ImageView imgComp;
     @BindView(R.id.second_part)
     View secondPart;
 
-    private int mPageNumber;
     private int h;
     private boolean secondVisible = false;
     private float transY = 0, initial = 0, initText = 0;
+    private Skate skate;
 
-    public static ScreenSlidePageFragment create(int pageNumber) {
+    public static ScreenSlidePageFragment create(Skate skate) {
         ScreenSlidePageFragment fragment = new ScreenSlidePageFragment();
         Bundle args = new Bundle();
-        args.putInt(ARG_PAGE, pageNumber);
+        args.putParcelable(SKATE, skate);
         fragment.setArguments(args);
         return fragment;
     }
@@ -54,7 +55,7 @@ public class ScreenSlidePageFragment extends Fragment implements View.OnClickLis
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mPageNumber = getArguments().getInt(ARG_PAGE);
+        skate = getArguments().getParcelable(SKATE);
     }
 
     @Override
@@ -65,22 +66,18 @@ public class ScreenSlidePageFragment extends Fragment implements View.OnClickLis
 
         ButterKnife.bind(this, rootView);
 
-        skate.setOnClickListener(this);
+        imgSkate.setOnClickListener(this);
 
-        name.setText(App.names[mPageNumber]);
-        fullName.setText(App.full_names[mPageNumber]);
-        desc.setText(App.descriptions[mPageNumber]);
-        skate.setImageResource(App.img_skate[mPageNumber]);
-        comp.setImageResource(App.img_comp[mPageNumber]);
+        name.setText(skate.getName());
+        fullName.setText(skate.getFull_name());
+        desc.setText(skate.getDescription());
+        imgSkate.setImageResource(skate.getImgSkateResId());
+        imgComp.setImageResource(skate.getImgCompResId());
 
         secondPart.setVisibility(View.INVISIBLE);
         secondPart.setOnTouchListener(this);
 
         return rootView;
-    }
-
-    public int getPageNumber() {
-        return mPageNumber;
     }
 
 
@@ -104,7 +101,7 @@ public class ScreenSlidePageFragment extends Fragment implements View.OnClickLis
         Log.w("", "Open Detail");
         ObjectAnimator anim1 = ObjectAnimator.ofFloat(secondPart, "translationY", getView().getHeight(),
                 getView().getHeight() - h - 64).setDuration(300);
-        ObjectAnimator anim2 = ObjectAnimator.ofFloat(skate, "translationY", -h).setDuration(300);
+        ObjectAnimator anim2 = ObjectAnimator.ofFloat(imgSkate, "translationY", -h).setDuration(300);
         ObjectAnimator anim3 = ObjectAnimator.ofFloat(name, "translationY", -h).setDuration(300);
         AnimatorSet set = new AnimatorSet();
         set.playTogether(anim1, anim2, anim3);
@@ -115,7 +112,7 @@ public class ScreenSlidePageFragment extends Fragment implements View.OnClickLis
     private void closeDetails(int h) {
         Log.w("", "Close Detail");
         ObjectAnimator anim1 = ObjectAnimator.ofFloat(secondPart, "translationY", getView().getHeight()).setDuration(300);
-        ObjectAnimator anim2 = ObjectAnimator.ofFloat(skate, "translationY", 0).setDuration(300);
+        ObjectAnimator anim2 = ObjectAnimator.ofFloat(imgSkate, "translationY", 0).setDuration(300);
         ObjectAnimator anim3 = ObjectAnimator.ofFloat(name, "translationY", 0).setDuration(300);
         AnimatorSet set = new AnimatorSet();
         set.playTogether(anim1, anim2, anim3);
@@ -135,7 +132,7 @@ public class ScreenSlidePageFragment extends Fragment implements View.OnClickLis
             if (motionEvent.getRawY() - transY > 0) {
                 float dY = motionEvent.getRawY() - transY;
                 view.setTranslationY(initial + dY);
-                skate.setTranslationY(dY - h);
+                imgSkate.setTranslationY(dY - h);
                 name.setTranslationY(initText + dY);
             }
 
@@ -149,7 +146,7 @@ public class ScreenSlidePageFragment extends Fragment implements View.OnClickLis
             if (secondVisible) {
                 ObjectAnimator anim1 = ObjectAnimator.ofFloat(secondPart, "translationY",
                         getView().getHeight() - h - 64).setDuration(300);
-                ObjectAnimator anim2 = ObjectAnimator.ofFloat(skate, "translationY", -h).setDuration(300);
+                ObjectAnimator anim2 = ObjectAnimator.ofFloat(imgSkate, "translationY", -h).setDuration(300);
                 ObjectAnimator anim3 = ObjectAnimator.ofFloat(name, "translationY", -h).setDuration(300);
                 AnimatorSet set = new AnimatorSet();
                 set.playTogether(anim1, anim2, anim3);
